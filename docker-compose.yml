@@ -1,0 +1,29 @@
+version: '3'
+
+services:
+    mysqldb:
+        image: mariadb:10.3
+        ports:
+            - '3306:3306'
+        volumes:
+            - ./data/:/var/lib/mysql
+        environment:
+            - MYSQL_ROOT_PASSWORD=admin
+            - MYSQL_DATABASE=todo
+            - MYSQL_USER=user
+            - MYSQL_PASSWORD=password
+    flask:
+        image: python:latest
+        ports:
+            - '5000:5000'
+        volumes:
+            - .:/code
+        environment:
+            - MODE=production
+            - USER=user
+            - PASS=password
+            - DB_HOST=mysqldb
+            - DATABASE=todo
+        depends_on: 
+            - mysqldb
+        command: bash -c "cd /code && pip install -r requirements.txt && cd api && uwsgi --ini app.ini"
